@@ -122,3 +122,87 @@
  ......
  (+1) 추상화된 것에 의존하라. 구상 클래스에 의존하지 않도록 하라.
  => 가능하면 모든 것을 추상적으로 만들라는 가이드라인을 제공하는 새로운 원칙이 추가되었습니다.
+
+### 5. 싱글톤 패턴
+ 이전 회사에서도 많이 쓰였던 패턴이였는데, 이 책에서는 굉장히 간결하게 그리고 사용할때 조심하라고 써져있다.
+  싱글톤 정의
+   - 해당 클래스의 인스턴스가 하나만 만들어지고, 어디서든지 그 인스턴스에 접근할 수 있도록 하기 위한 패턴입니다.
+
+가장 기본적인 패턴은...
+
+public class Singleton {
+  private static Singleton uniqueInstance;
+
+  //기타 인스턴스 변수
+
+  private Singleton(){}
+
+  public static Singleton getInstance() {
+    if (uniqueInstance == null) {
+      uniqueInstance = new Singleton();
+    }
+    return uniqueInstance;
+  }
+  //기타 메소드
+
+
+ 이런식으로 하고 만약에 멀티쓰레드를 사용할경우에는
+
+ public class Singleton {
+   private static Singleton uniqueInstance;
+
+   //기타 인스턴스 변수
+
+   private Singleton(){}
+
+   public static <Strong>synchronized</Strong> Singleton getInstance() {
+     if (uniqueInstance == null) {
+       uniqueInstance = new Singleton();
+     }
+     return uniqueInstance;
+  }
+   //기타 메소드
+ }
+
+ : <Strong>이렇게 써주면 굿굿!</Strong>
+
+  그리고 멀티쓰레드를 사용하는데, 속도가 문제가 되어 오버헤드가 일어난다면, 이런식의 방법을 사용하는걸 권장!
+
+  public class Singleton {
+    private volatile static Singleton uniqueInstance;
+
+    //기타 인스턴스 변수
+
+    private Singleton(){}
+
+    public static <Strong>synchronized</Strong> Singleton getInstance() {
+      if (uniqueInstance == null) {
+        synchronized(Singleton.clss) {
+          if(uniqueInstance == null) {
+            uniqueInstance = new Singleton();
+          }
+        }
+      }
+      return uniqueInstance;
+   }
+    //기타 메소드
+  }
+
+   **그럼 언제 사용하는게 가장 적당할까??**
+##### => 애플리케이션에서 특정 클래스의 인스턴스가 하나만 있어야 하는 경우에 그 클래스를 싱글턴으로 만들면 됩니다.
+
+### 6. 커맨드 패턴
+
+*커맨드 패턴을 이용하면 요구 사항을 객체로 캡슐화 할 수 있으며, 매개변수를 써서 여러가지 다른 요구 사항을 집어넣을수도 있습니다. 또한 요청 내역을 큐에 저장하거나 로그로 기록할 수도 있으며, 작업취소 기능도 지원가능합니다.*
+
+ 말이 굉장히 어려운데, 실제로 해보면 어렵다긴보다는 추척하는 힘? 논리적으로 잘 따라가야한다는걸 느낄수 있었어요.
+
+상세설명.
+커맨드 객체는 일련의 행동을 특정 리시버하고 연결시킴으로써 요구 사항을 캡슐화한 것이라는 점을 이미 배웠습니다. 이렇게 하기 위해서 행동과 리시버를 한 객체에 집어넣고, execute()라는 메소드 하나만 외부에 공개하는 방법을 씁니다. 이 메소드 호출에 의해서 리시버에서 일련의 작업이 처리됩니다. 외부에서 볼 때는 어떤 객체가 리시버 역할을 하는지, 그 리시버에서 실제로 어떤 일을 하는지 알 수 없습니다. 그냥 execute()메소드를 호출하면 요구 사항이 처리된다는 것만 알 수 있을 뿐이죠.
+
+명령을 통해서 객체를 매개변수화합니다.
+
+ 인보커 로딩
+ 1. 클라이언트에서 커맨드 객체 생성
+ 2. setCommand()를 호출하여 인보커에 커맨드 객체를 저장
+ 3. 나중에 클라이언트에서 인보커한테 그 명령을 실행시켜 달라고 요청을 함.
